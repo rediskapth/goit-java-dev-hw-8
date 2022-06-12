@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    postgreSQLVersion = '42.3.4'
+    jstlVersion = '1.2'
+    springSecurityVersion = '5.2.12.RELEASE'
+    tomcatEmbedVersion = '9.0.34'
+    junitVersion = '5.8.2'
+}
+
+dependencies {
+    implementation "org.postgresql:postgresql:${postgreSQLVersion}"
+    implementation "jstl:jstl:${jstlVersion}"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+    implementation group: 'org.springframework.security', name: 'spring-security-taglibs', version: "${springSecurityVersion}"
+    implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: "${tomcatEmbedVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}

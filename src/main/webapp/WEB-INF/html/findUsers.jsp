@@ -13,6 +13,7 @@
 
         <div class="container">
         <h2 class>Show all users</h2>
+        <span style="color:red">${message}</span><br>
             <table class="table table-hover">
                 <thead>
                     <tr>

@@ -109,15 +109,13 @@ public class UserController {
 
     @PostMapping(path = "/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ModelAndView updateUser(@PathVariable("id") UUID id,
+    public String updateUser(@PathVariable("id") UUID id,
                                    @ModelAttribute("userDto") @Valid UserDto userDto, BindingResult bindingResult,
-                                   ModelAndView model) {
+                                   Model model) {
         if (bindingResult.hasErrors()) {
             List<UserRole> userRoles = List.of(UserRole.values());
-            model.addObject("userRoles", userRoles);
-            model.setViewName("updateUserForm");
-            model.setStatus(HttpStatus.BAD_REQUEST);
-            return model;
+            model.addAttribute("userRoles", userRoles);
+            return "updateUserForm";
         }
         try {
             UserDto userToUpdate = userService.findUserById(id);
@@ -127,26 +125,42 @@ public class UserController {
             userToUpdate.setPassword(userDto.getPassword());
             userToUpdate.setUserRole(userDto.getUserRole());
             userToUpdate.setId(userDto.getId());
+            if (userDto.getEmail().equals("admin@admin")) {
+                throw new Exception("User admin@admin is superadmin. You can't update it.");
+            }
             if (userToUpdate.getEmail().equals(userDto.getEmail())) {
                 userService.delete(userDto);
             }
             userService.saveOrUpdate(userToUpdate);
-            model.setViewName("updateUser");
-            model.setStatus(HttpStatus.CREATED);
         } catch (UserAlreadyExistsException ex) {
             List<UserRole> userRoles = List.of(UserRole.values());
-            model.addObject("userRoles", userRoles);
-            model.addObject("message", ex.getMessage());
-            model.setViewName("updateUserForm");
+            model.addAttribute("userRoles", userRoles);
+            model.addAttribute("message", ex.getMessage());
+            return "updateUserForm";
+        } catch (Exception ex) {
+            model.addAttribute("message", ex.getMessage());
+            List<UserDto> users = userService.findAllUsers();
+            model.addAttribute("users", users);
+            return "findUsers";
         }
-        return model;
+        return "updateUser";
     }
 
     @GetMapping(path = "/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String deleteUserByEmail(@PathVariable("id") UUID id, ModelAndView model) {
+    public String deleteUserByEmail(@PathVariable("id") UUID id, Model model) {
         UserDto userDto = userService.findUserById(id);
-        userService.delete(userDto);
+        try {
+            if (userDto.getEmail().equals("admin@admin")) {
+                throw new Exception();
+            }
+            userService.delete(userDto);
+        } catch (Exception ex) {
+            model.addAttribute("message", "User admin@admin is superadmin. You can't delete it.");
+            List<UserDto> users = userService.findAllUsers();
+            model.addAttribute("users", users);
+            return "findUsers";
+        }
         return "deleteUser";
     }
 }

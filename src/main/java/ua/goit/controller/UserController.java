@@ -122,7 +122,7 @@ public class UserController {
             userToUpdate.setFirstName(userDto.getFirstName());
             userToUpdate.setLastName(userDto.getLastName());
             userToUpdate.setEmail(userDto.getEmail());
-            userToUpdate.setPassword(userDto.getPassword());
+            userToUpdate.setPassword(passwordEncoder.encode(userDto.getPassword()));
             userToUpdate.setUserRole(userDto.getUserRole());
             userToUpdate.setId(userDto.getId());
             if (userDto.getEmail().equals("admin@admin")) {
